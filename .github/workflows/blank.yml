@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistika Penjualan Ayam</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#f4f6f9;
+    padding:20px;
+}
+
+.container{
+    max-width:1200px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    margin-bottom:25px;
+    color:#333;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+    text-align:center;
+}
+
+.card h2{
+    font-size:16px;
+    color:#666;
+    margin-bottom:10px;
+}
+
+.card p{
+    font-size:24px;
+    font-weight:bold;
+    color:#28a745;
+}
+
+.chart-box{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+    margin-bottom:25px;
+}
+
+.rumus{
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+
+.rumus h2{
+    margin-bottom:10px;
+}
+
+.rumus p{
+    margin-bottom:8px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>📊 Dashboard Statistika Penjualan Ayam</h1>
+
+<div class="cards">
+
+    <div class="card">
+        <h2>Total Penjualan</h2>
+        <p id="total"></p>
+    </div>
+
+    <div class="card">
+        <h2>Mean</h2>
+        <p id="mean"></p>
+    </div>
+
+    <div class="card">
+        <h2>Median</h2>
+        <p id="median"></p>
+    </div>
+
+    <div class="card">
+        <h2>Modus</h2>
+        <p id="modus"></p>
+    </div>
+
+    <div class="card">
+        <h2>Maksimum</h2>
+        <p id="maksimum"></p>
+    </div>
+
+    <div class="card">
+        <h2>Minimum</h2>
+        <p id="minimum"></p>
+    </div>
+
+    <div class="card">
+        <h2>Range</h2>
+        <p id="range"></p>
+    </div>
+
+    <div class="card">
+        <h2>Varians</h2>
+        <p id="varians"></p>
+    </div>
+
+    <div class="card">
+        <h2>Standar Deviasi</h2>
+        <p id="stddev"></p>
+    </div>
+
+</div>
+
+<div class="chart-box">
+    <canvas id="chartAyam"></canvas>
+</div>
+
+<div class="rumus">
+    <h2>Rumus Statistik yang Digunakan</h2>
+    <p><strong>Mean:</strong> Σx / n</p>
+    <p><strong>Median:</strong> Nilai tengah data setelah diurutkan</p>
+    <p><strong>Modus:</strong> Nilai yang paling sering muncul</p>
+    <p><strong>Range:</strong> Maksimum − Minimum</p>
+    <p><strong>Varians:</strong> Σ(x − x̄)² / n</p>
+    <p><strong>Standar Deviasi:</strong> √Varians</p>
+</div>
+
+</div>
+
+<script>
+
+// Data penjualan ayam per bulan (Kg)
+const bulan = [
+    "Jan","Feb","Mar","Apr","Mei","Jun",
+    "Jul","Agu","Sep","Okt","Nov","Des"
+];
+
+const penjualan = [
+    120,150,180,200,170,220,
+    250,240,230,280,300,320
+];
+
+// TOTAL
+const total = penjualan.reduce((a,b)=>a+b,0);
+
+// MEAN
+const mean = total / penjualan.length;
+
+// MEDIAN
+const sorted = [...penjualan].sort((a,b)=>a-b);
+const tengah = Math.floor(sorted.length/2);
+
+const median = sorted.length % 2 === 0
+    ? (sorted[tengah-1] + sorted[tengah]) / 2
+    : sorted[tengah];
+
+// MODUS
+const frekuensi = {};
+let modus = "-";
+let maxFreq = 0;
+
+for(let nilai of penjualan){
+    frekuensi[nilai] = (frekuensi[nilai] || 0) + 1;
+
+    if(frekuensi[nilai] > maxFreq){
+        maxFreq = frekuensi[nilai];
+        modus = nilai;
+    }
+}
+
+if(maxFreq === 1){
+    modus = "Tidak Ada";
+}
+
+// MAKSIMUM & MINIMUM
+const maksimum = Math.max(...penjualan);
+const minimum = Math.min(...penjualan);
+
+// RANGE
+const range = maksimum - minimum;
+
+// VARIANS
+const varians = penjualan.reduce((sum,x)=>{
+    return sum + Math.pow(x - mean,2);
+},0) / penjualan.length;
+
+// STANDAR DEVIASI
+const stddev = Math.sqrt(varians);
+
+// TAMPILKAN HASIL
+document.getElementById("total").innerText =
+    total.toFixed(0) + " Kg";
+
+document.getElementById("mean").innerText =
+    mean.toFixed(2);
+
+document.getElementById("median").innerText =
+    median.toFixed(2);
+
+document.getElementById("modus").innerText =
+    modus;
+
+document.getElementById("maksimum").innerText =
+    maksimum;
+
+document.getElementById("minimum").innerText =
+    minimum;
+
+document.getElementById("range").innerText =
+    range;
+
+document.getElementById("varians").innerText =
+    varians.toFixed(2);
+
+document.getElementById("stddev").innerText =
+    stddev.toFixed(2);
+
+// GRAFIK
+new Chart(document.getElementById('chartAyam'),{
+    type:'bar',
+    data:{
+        labels:bulan,
+        datasets:[{
+            label:'Penjualan Ayam (Kg)',
+            data:penjualan,
+            backgroundColor:'#28a745',
+            borderRadius:8
+        }]
+    },
+    options:{
+        responsive:true,
+        plugins:{
+            legend:{
+                display:true
+            }
+        }
+    }
+});
+
+</script>
+
+</body>
+</html>
